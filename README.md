@@ -42,6 +42,6 @@ Go to http://127.0.0.1:6006.
 
 You will see the interactive visualization (provided by Tensorboard).
 
-![Table View](https://raw.githubusercontent.com/tokusumi/kerastuner-tensorboard-logger/master/docs/src/table_view.jpg)
+![Table View](https://raw.githubusercontent.com/tokusumi/kerastuner-tensorboard-logger/main/docs/src/table_view.jpg)
 
-![Parallel Coordinates View](https://raw.githubusercontent.com/tokusumi/kerastuner-tensorboard-logger/master/docs/src/parallel_coordinates_view.jpg)
+![Parallel Coordinates View](https://raw.githubusercontent.com/tokusumi/kerastuner-tensorboard-logger/main/docs/src/parallel_coordinates_view.jpg)
