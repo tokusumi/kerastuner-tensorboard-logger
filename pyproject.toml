@@ -19,7 +19,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.6"
-tensorflow = "^2.3"
+tensorflow = "^2.0"
 keras-tuner = "^1.0"
 
 [tool.poetry.dev-dependencies]
