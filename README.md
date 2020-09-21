@@ -1,10 +1,14 @@
 # Keras-tuner Tensorboard logger
 
+![](https://github.com/tokusumi/kerastuner-tensorboard-logger/workflows/Tests/badge.svg)
+
 keras-tuner logger for streaming search report to Tensorboard plugins Hparams, beautiful interactive visualization tool.
 
 ## Requirements
 
-Python 3.6+
+* Python 3.6+
+* keras-tuner 1.0.0+
+* Tensorboard 2.1+
 
 ## Example
 
