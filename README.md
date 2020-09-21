@@ -1,8 +1,9 @@
 # Keras-tuner Tensorboard logger
 
 ![](https://github.com/tokusumi/kerastuner-tensorboard-logger/workflows/Tests/badge.svg)
+[![PyPI version](https://badge.fury.io/py/kerastuner-tensorboard-logger.svg)](https://badge.fury.io/py/kerastuner-tensorboard-logger)
 
-keras-tuner logger for streaming search report to Tensorboard plugins Hparams, beautiful interactive visualization tool.
+[keras-tuner](https://www.tensorflow.org/tutorials/keras/keras_tuner) logger for streaming search report to [Tensorboard plugins Hparams](https://www.tensorflow.org/tensorboard/hyperparameter_tuning_with_hparams), beautiful interactive visualization tool.
 
 ## Requirements
 
@@ -10,11 +11,17 @@ keras-tuner logger for streaming search report to Tensorboard plugins Hparams, b
 * keras-tuner 1.0.0+
 * Tensorboard 2.1+
 
+## Installation
+
+```
+$ pip install kerastuner-tensorboard-logger
+```
+
 ## Example
 
-simple and incomplete code is introduced.
+here is simple and incomplete code.
 
-See details about how to use keras-tuner in [here](https://github.com/keras-team/keras-tuner).
+See details about how to use keras-tuner [here](https://github.com/keras-team/keras-tuner).
 
 Add only one argument in tuner class and search it, then you can go to see search report in Tensorboard.
 
