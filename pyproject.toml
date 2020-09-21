@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "kerastuner-tensorboard-logger"
 version = "0.1.0"
-description = ""
+description = "Simple integration of keras-tuner (hyperparameter tuning) and tensorboard dashboard (interactive visualization)."
 authors = ["tokusumi <tksmtoms@gmail.com>"]
 license = "MIT"
 readme = "README.md"
@@ -9,13 +9,18 @@ repository = "https://github.com/tokusumi/kerastuner-tensorboard-logger"
 include = [
     "LICENSE",
 ]
+keywords = ["tensorflow2", "keras-tuner", "tensorboard"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 
 [tool.poetry.dependencies]
 python = "^3.6"
-tensorflow = "^2.3.0"
-keras-tuner = "^1.0.1"
-tensorboard = "^2.3.0"
-setuptools = "^41.0.0"
+tensorflow = "^2.3"
+keras-tuner = "^1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.0.2"
