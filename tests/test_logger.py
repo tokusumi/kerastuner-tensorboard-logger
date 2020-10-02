@@ -7,7 +7,7 @@ import tensorflow_datasets as tfds
 
 
 from kerastuner_tensorboard_logger.logger import timedelta_to_hms
-from kerastuner_tensorboard_logger import TensorBoardLogger
+from kerastuner_tensorboard_logger import TensorBoardLogger, setup
 
 
 def test_timedelta_to_hms():
@@ -161,6 +161,27 @@ def test_heavy_search_manual():
     train_data, test_data = make_dataset()
 
     tuner.search(train_data, epochs=5, validation_data=test_data)
+
+
+def test_initialize_manual():
+    """test optional initialization
+    manual test is required. log files for tensorboard,
+    then, run tensorboard server as:
+
+    ```bash
+    tensorboard --logdir tests/logs/hparams
+    ```
+
+    """
+    tuner = Hyperband(
+        build_model,
+        objective="val_acc",
+        max_epochs=5,
+        directory="tests/logs/tuner",
+        project_name="tf_test",
+        logger=TensorBoardLogger(metrics="val_acc", logdir="tests/logs/hparams"),
+    )
+    setup(tuner)
 
 
 def test_parse():
