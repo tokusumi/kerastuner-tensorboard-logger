@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kerastuner-tensorboard-logger"
-version = "0.1.0"
+version = "0.2.0"
 description = "Simple integration of keras-tuner (hyperparameter tuning) and tensorboard dashboard (interactive visualization)."
 authors = ["tokusumi <tksmtoms@gmail.com>"]
 license = "MIT"
