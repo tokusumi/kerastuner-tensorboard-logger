@@ -1,11 +1,14 @@
+from typing import Optional
+
 import tensorflow as tf
 from tensorboard.plugins.hparams import api as hp_board
 from kerastuner.engine.base_tuner import BaseTuner
+import kerastuner.engine.hyperparameters as hp
 
 from kerastuner_tensorboard_logger import TensorBoardLogger
 
 
-def setup(tuner: BaseTuner):
+def setup_tb(tuner: BaseTuner):
     """setup hparams"""
     if not isinstance(tuner.logger, TensorBoardLogger):
         raise ValueError("Must set TensorBoardLogger")
@@ -25,5 +28,31 @@ def setup(tuner: BaseTuner):
         )
 
 
-def kerastuner_to_hparams(hp):
-    return hp
+def kerastuner_to_hparams(value: hp.HyperParameter):
+    """convert kerastuner hp to tensorboard hp"""
+    SHORTCUT = {hp.Int: int_to_Hparam, hp.Choice: choice_to_Hparam}
+    hparam = SHORTCUT.get(type(value), to_hparam)(value)
+    return hparam
+
+
+def to_hparam(value: hp.HyperParameter):
+    """base convertor."""
+    name = value.name
+    return hp_board.HParam(name)
+
+
+def choice_to_Hparam(value: hp.Choice):
+    """Choice to hp_board.HParam"""
+    name = value.name
+    choices = value.values
+    return hp_board.HParam(name, hp_board.Discrete(choices))
+
+
+def int_to_Hparam(value: hp.Int):
+    """Int to hp_board.Hparam"""
+    name = value.name
+    min_value = value.min_value
+    max_value = value.max_value
+    return hp_board.HParam(
+        name, hp_board.IntInterval(min_value=min_value, max_value=max_value)
+    )
