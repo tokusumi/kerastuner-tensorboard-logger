@@ -78,14 +78,14 @@ def build_model(hp):
         keras.layers.Conv2D(
             hp.Choice("filter", values=[16, 32, 64]),
             3,
-            activation=hp.Choice("activation", values=["swish", "softplus", "relu"]),
+            activation=hp.Choice("activation", values=["tanh", "softplus", "relu"]),
         )
     )
     model.add(
         keras.layers.Conv2D(
             2 * hp.Choice("filter", values=[16, 32, 64]),
             3,
-            activation=hp.Choice("activation", values=["swish", "softplus", "relu"]),
+            activation=hp.Choice("activation", values=["tanh", "softplus", "relu"]),
         )
     )
     if hp.Boolean("batchnorm"):
