@@ -19,15 +19,20 @@ $ pip install kerastuner-tensorboard-logger
 
 ## Example
 
-here is simple and incomplete code.
+here is simple (and incomplete) code.
 
 See details about how to use keras-tuner [here](https://github.com/keras-team/keras-tuner).
 
 Add only one argument in tuner class and search it, then you can go to see search report in Tensorboard.
 
+Optionally, you can call `setup_tb` to be more accurate TensorBoard visualization. It convert keras-tuner hyperparameter information and do [Tensorboard experimental setup](https://www.tensorflow.org/tensorboard/hyperparameter_tuning_with_hparams#1_experiment_setup_and_the_hparams_experiment_summary).
+
 ```python
 # import this
-from kerastuner_tensorboard_logger import TensorBoardLogger
+from kerastuner_tensorboard_logger import (
+    TensorBoardLogger,
+    setup_tb  # Optional
+)
 
 tuner = Hyperband(
     build_model,
@@ -40,6 +45,7 @@ tuner = Hyperband(
     ),  # add only this argument
 )
 
+setup_tb(tuner)  # (Optional) For more accurate visualization.
 tuner.search(x, y, epochs=5, validation_data=(val_x, val_y))
 ```
 

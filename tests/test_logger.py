@@ -4,16 +4,36 @@ import tensorflow as tf
 from tensorflow import keras
 from kerastuner.tuners import Hyperband
 import tensorflow_datasets as tfds
-
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
 
 from kerastuner_tensorboard_logger.logger import timedelta_to_hms
-from kerastuner_tensorboard_logger import TensorBoardLogger
+from kerastuner_tensorboard_logger import TensorBoardLogger, setup_tb
 
 
 def test_timedelta_to_hms():
     td = timedelta(minutes=10, hours=2, seconds=30, microseconds=111)
     out = timedelta_to_hms(td)
     assert out == "2h:10m:30s"
+
+
+def build_small_model(hp):
+    model = keras.Sequential()
+    model.add(
+        keras.layers.Dense(
+            units=hp.Int("units", min_value=32, max_value=512, step=32),
+            activation="relu",
+        )
+    )
+    model.add(keras.layers.Dense(3, activation="softmax"))
+    model.compile(
+        optimizer=keras.optimizers.Adam(
+            hp.Choice("learning_rate", values=[1e-2, 1e-3, 1e-4])
+        ),
+        loss="sparse_categorical_crossentropy",
+        metrics=["acc"],
+    )
+    return model
 
 
 def make_dataset():
@@ -32,6 +52,7 @@ def make_dataset():
         """Normalizes images: `uint8` -> `float32`."""
         return tf.cast(image, tf.float32) / 255.0, label
 
+    ds_train = ds_train.take(300)
     ds_train = ds_train.map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE
     )
@@ -40,6 +61,7 @@ def make_dataset():
     ds_train = ds_train.batch(128)
     ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
 
+    ds_test = ds_test.take(300)
     ds_test = ds_test.map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE
     )
@@ -56,25 +78,31 @@ def build_model(hp):
         keras.layers.Conv2D(
             hp.Choice("filter", values=[16, 32, 64]),
             3,
-            activation=hp.Choice("activation", values=["swish", "softplus", "relu"]),
+            activation=hp.Choice("activation", values=["tanh", "softplus", "relu"]),
         )
     )
     model.add(
         keras.layers.Conv2D(
             2 * hp.Choice("filter", values=[16, 32, 64]),
             3,
-            activation=hp.Choice("activation", values=["swish", "softplus", "relu"]),
+            activation=hp.Choice("activation", values=["tanh", "softplus", "relu"]),
         )
     )
+    if hp.Boolean("batchnorm"):
+        model.add(keras.layers.BatchNormalization())
+
     model.add(keras.layers.MaxPooling2D(pool_size=2))
-    model.add(keras.layers.Dropout(hp.Choice("dropout", values=[0.25, 0.50, 0.75])))
     model.add(keras.layers.Flatten())
     model.add(
         keras.layers.Dense(
             hp.Int("units", min_value=32, max_value=512, step=32), activation="relu"
         )
     )
-    model.add(keras.layers.Dropout(hp.Choice("dropout", values=[0.25, 0.50, 0.75])))
+    model.add(
+        keras.layers.Dropout(
+            hp.Float("dropout", min_value=0.25, max_value=0.75, step=0.25)
+        )
+    )
     model.add(keras.layers.Dense(10, activation="softmax"))
     model.compile(
         optimizer=keras.optimizers.Adam(
@@ -96,38 +124,17 @@ def test_search_manual():
     ```
 
     """
-
-    def build_model(hp):
-        model = keras.Sequential()
-        model.add(
-            keras.layers.Dense(
-                units=hp.Int("units", min_value=32, max_value=512, step=32),
-                activation="relu",
-            )
-        )
-        model.add(keras.layers.Dense(3, activation="softmax"))
-        model.compile(
-            optimizer=keras.optimizers.Adam(
-                hp.Choice("learning_rate", values=[1e-2, 1e-3, 1e-4])
-            ),
-            loss="sparse_categorical_crossentropy",
-            metrics=["acc"],
-        )
-        return model
-
     tuner = Hyperband(
-        build_model,
+        build_small_model,
         objective="val_acc",
         max_epochs=5,
-        directory="tests/logs/tuner",
-        project_name="tf_test",
+        directory="tests/logs/search",
+        project_name="search_manual",
         overwrite=True,
         logger=TensorBoardLogger(
-            metrics="val_acc", logdir="tests/logs/hparams", overwrite=True
+            metrics="val_acc", logdir="tests/logs/hparams/search_manual", overwrite=True
         ),
     )
-    from sklearn import datasets
-    from sklearn.model_selection import train_test_split
 
     iris = datasets.load_iris()
     x, val_x, y, val_y = train_test_split(iris.data, iris.target)
@@ -135,7 +142,6 @@ def test_search_manual():
     tuner.search(x, y, epochs=5, validation_data=(val_x, val_y))
 
 
-@pytest.mark.skip
 def test_heavy_search_manual():
     """e2e test
     manual test is required. log files for tensorboard,
@@ -150,17 +156,46 @@ def test_heavy_search_manual():
         build_model,
         objective="val_acc",
         max_epochs=5,
-        directory="tests/logs/tuner",
-        project_name="tf_test",
+        directory="tests/logs/search",
+        project_name="heavy_search_manual",
         overwrite=True,
         logger=TensorBoardLogger(
-            metrics="val_acc", logdir="tests/logs/hparams", overwrite=True
+            metrics="val_acc",
+            logdir="tests/logs/hparams/heavy_search_manual",
+            overwrite=True,
         ),
     )
 
     train_data, test_data = make_dataset()
-
     tuner.search(train_data, epochs=5, validation_data=test_data)
+
+
+def test_initialize_manual():
+    """test optional initialization
+    manual test is required. log files for tensorboard,
+    then, run tensorboard server as:
+
+    ```bash
+    tensorboard --logdir tests/logs/hparams
+    ```
+
+    """
+    tuner = Hyperband(
+        build_model,
+        objective="val_acc",
+        max_epochs=5,
+        directory="tests/logs/search",
+        project_name="initialize_manual",
+        overwrite=True,
+        logger=TensorBoardLogger(
+            metrics="val_acc",
+            logdir="tests/logs/hparams/initialize_manual",
+            overwrite=True,
+        ),
+    )
+    setup_tb(tuner)
+    train_data, test_data = make_dataset()
+    tuner.search(train_data, epochs=3, validation_data=test_data)
 
 
 def test_parse():

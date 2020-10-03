@@ -3,4 +3,4 @@
 set -e
 
 pytest --disable-warnings tests/
-tensorboard --logdir logs/hparam_tuning
+tensorboard --logdir tests/logs/hparams
