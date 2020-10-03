@@ -28,31 +28,45 @@ def setup_tb(tuner: BaseTuner):
         )
 
 
-def kerastuner_to_hparams(value: hp.HyperParameter):
+def kerastuner_to_hparams(value: hp.HyperParameter) -> hp_board.HParam:
     """convert kerastuner hp to tensorboard hp"""
-    SHORTCUT = {hp.Int: int_to_Hparam, hp.Choice: choice_to_Hparam}
+    SHORTCUT = {
+        hp.Int: int_to_Hparam,
+        hp.Float: float_to_Hparam,
+        hp.Choice: choice_to_Hparam,
+    }
     hparam = SHORTCUT.get(type(value), to_hparam)(value)
     return hparam
 
 
-def to_hparam(value: hp.HyperParameter):
+def to_hparam(value: hp.HyperParameter) -> hp_board.HParam:
     """base convertor."""
     name = value.name
     return hp_board.HParam(name)
 
 
-def choice_to_Hparam(value: hp.Choice):
+def choice_to_Hparam(value: hp.Choice) -> hp_board.HParam:
     """Choice to hp_board.HParam"""
     name = value.name
     choices = value.values
     return hp_board.HParam(name, hp_board.Discrete(choices))
 
 
-def int_to_Hparam(value: hp.Int):
+def int_to_Hparam(value: hp.Int) -> hp_board.HParam:
     """Int to hp_board.Hparam"""
     name = value.name
     min_value = value.min_value
     max_value = value.max_value
     return hp_board.HParam(
         name, hp_board.IntInterval(min_value=min_value, max_value=max_value)
+    )
+
+
+def float_to_Hparam(value: hp.Float) -> hp_board.HParam:
+    """Float to hp_board.Hparam"""
+    name = value.name
+    min_value = value.min_value
+    max_value = value.max_value
+    return hp_board.HParam(
+        name, hp_board.RealInterval(min_value=min_value, max_value=max_value)
     )
