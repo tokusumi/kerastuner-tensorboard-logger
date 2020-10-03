@@ -88,15 +88,21 @@ def build_model(hp):
             activation=hp.Choice("activation", values=["swish", "softplus", "relu"]),
         )
     )
+    if hp.Boolean("batchnorm"):
+        model.add(keras.layers.BatchNormalization())
+
     model.add(keras.layers.MaxPooling2D(pool_size=2))
-    model.add(keras.layers.Dropout(hp.Choice("dropout", values=[0.25, 0.50, 0.75])))
     model.add(keras.layers.Flatten())
     model.add(
         keras.layers.Dense(
             hp.Int("units", min_value=32, max_value=512, step=32), activation="relu"
         )
     )
-    model.add(keras.layers.Dropout(hp.Choice("dropout", values=[0.25, 0.50, 0.75])))
+    model.add(
+        keras.layers.Dropout(
+            hp.Float("dropout", min_value=0.25, max_value=0.75, step=0.25)
+        )
+    )
     model.add(keras.layers.Dense(10, activation="softmax"))
     model.compile(
         optimizer=keras.optimizers.Adam(

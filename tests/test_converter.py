@@ -30,3 +30,9 @@ def test_kerastuner_to_hparams():
     hparam = kerastuner_to_hparams(value)
     assert hparam.name == name
     assert isinstance(hparam.domain, hp_board.RealInterval)
+
+    name = "boolean"
+    value = hp.Boolean(name)
+    hparam = kerastuner_to_hparams(value)
+    assert hparam.name == name
+    assert isinstance(hparam.domain, hp_board.Discrete)

@@ -1,5 +1,3 @@
-from typing import Optional
-
 import tensorflow as tf
 from tensorboard.plugins.hparams import api as hp_board
 from kerastuner.engine.base_tuner import BaseTuner
@@ -34,6 +32,7 @@ def kerastuner_to_hparams(value: hp.HyperParameter) -> hp_board.HParam:
         hp.Int: int_to_Hparam,
         hp.Float: float_to_Hparam,
         hp.Choice: choice_to_Hparam,
+        hp.Boolean: boolean_to_Hparam,
     }
     hparam = SHORTCUT.get(type(value), to_hparam)(value)
     return hparam
@@ -70,3 +69,10 @@ def float_to_Hparam(value: hp.Float) -> hp_board.HParam:
     return hp_board.HParam(
         name, hp_board.RealInterval(min_value=min_value, max_value=max_value)
     )
+
+
+def boolean_to_Hparam(value: hp.Float) -> hp_board.HParam:
+    """boolean to hp_board.Hparam"""
+    name = value.name
+    hp_board.Discrete
+    return hp_board.HParam(name, hp_board.Discrete((True, False)))
