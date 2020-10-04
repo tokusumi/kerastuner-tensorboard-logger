@@ -14,7 +14,7 @@ from kerastuner_tensorboard_logger import TensorBoardLogger, setup_tb
 def test_timedelta_to_hms():
     td = timedelta(minutes=10, hours=2, seconds=30, microseconds=111)
     out = timedelta_to_hms(td)
-    assert out == "2h:10m:30s"
+    assert out == "2h10m30s"
 
 
 def build_small_model(hp):
@@ -52,20 +52,20 @@ def make_dataset():
         """Normalizes images: `uint8` -> `float32`."""
         return tf.cast(image, tf.float32) / 255.0, label
 
-    ds_train = ds_train.take(300)
+    ds_train = ds_train.take(100)
     ds_train = ds_train.map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE
     )
     ds_train = ds_train.cache()
     ds_train = ds_train.shuffle(ds_info.splits["train"].num_examples)
-    ds_train = ds_train.batch(128)
+    ds_train = ds_train.batch(16)
     ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
 
-    ds_test = ds_test.take(300)
+    ds_test = ds_test.take(100)
     ds_test = ds_test.map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE
     )
-    ds_test = ds_test.batch(128)
+    ds_test = ds_test.batch(16)
     ds_test = ds_test.cache()
     ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
 
@@ -127,7 +127,7 @@ def test_search_manual():
     tuner = Hyperband(
         build_small_model,
         objective="val_acc",
-        max_epochs=5,
+        max_epochs=3,
         directory="tests/logs/search",
         project_name="search_manual",
         overwrite=True,
@@ -139,7 +139,7 @@ def test_search_manual():
     iris = datasets.load_iris()
     x, val_x, y, val_y = train_test_split(iris.data, iris.target)
 
-    tuner.search(x, y, epochs=5, validation_data=(val_x, val_y))
+    tuner.search(x, y, epochs=3, validation_data=(val_x, val_y))
 
 
 def test_heavy_search_manual():
@@ -155,7 +155,7 @@ def test_heavy_search_manual():
     tuner = Hyperband(
         build_model,
         objective="val_acc",
-        max_epochs=5,
+        max_epochs=3,
         directory="tests/logs/search",
         project_name="heavy_search_manual",
         overwrite=True,
@@ -167,7 +167,7 @@ def test_heavy_search_manual():
     )
 
     train_data, test_data = make_dataset()
-    tuner.search(train_data, epochs=5, validation_data=test_data)
+    tuner.search(train_data, epochs=3, validation_data=test_data)
 
 
 def test_initialize_manual():
@@ -183,7 +183,7 @@ def test_initialize_manual():
     tuner = Hyperband(
         build_model,
         objective="val_acc",
-        max_epochs=5,
+        max_epochs=3,
         directory="tests/logs/search",
         project_name="initialize_manual",
         overwrite=True,

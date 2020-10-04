@@ -12,7 +12,7 @@ def timedelta_to_hms(timedelta: timedelta) -> str:
     hours = tot_seconds // 3600
     minutes = (tot_seconds % 3600) // 60
     seconds = tot_seconds % 60
-    return f"{hours}h:{minutes}m:{seconds}s"
+    return f"{hours}h{minutes}m{seconds}s"
 
 
 class TensorBoardLogger(Logger):
@@ -51,10 +51,14 @@ class TensorBoardLogger(Logger):
     def report_trial_state(self, trial_id: str, trial_state: Dict[str, Any]):
         """Gives the logger information about trial status."""
         execution_time = timedelta_to_hms(datetime.now() - self.times.pop(trial_id))
-        logdir = os.path.join(self.logdir, f"{execution_time}-{trial_id}")
+        name = f"{execution_time}-{trial_id}"
+        logdir = os.path.join(self.logdir, name)
+
         with tf.summary.create_file_writer(logdir).as_default():
             hparams = self.parse_hparams(trial_state)
-            hp_board.hparams(hparams)  # record the values used in this trial
+            hp_board.hparams(
+                hparams, trial_id=name
+            )  # record the values used in this trial
 
             for target_metric, metric in self.parse_metrics(trial_state):
                 tf.summary.scalar(target_metric, metric, step=1)
