@@ -12,6 +12,7 @@ from kerastuner_tensorboard_logger import TensorBoardLogger, setup_tb
 
 
 def test_timedelta_to_hms():
+    """(Deprecated)"""
     td = timedelta(minutes=10, hours=2, seconds=30, microseconds=111)
     out = timedelta_to_hms(td)
     assert out == "2h10m30s"
@@ -196,6 +197,35 @@ def test_initialize_manual():
     setup_tb(tuner)
     train_data, test_data = make_dataset()
     tuner.search(train_data, epochs=3, validation_data=test_data)
+
+
+def test_search_with_callbacks_manual():
+    """test logging with TensorBoardCallbacks
+    manual test is required. log files for tensorboard,
+    then, run tensorboard server as:
+
+    ```bash
+    tensorboard --logdir tests/logs/with-callbacks
+    ```
+
+    """
+    tuner = Hyperband(
+        build_model,
+        objective="val_acc",
+        max_epochs=3,
+        directory="tests/logs/with-callbacks/search",
+        project_name="initialize_manual",
+        overwrite=True,
+        logger=TensorBoardLogger(
+            metrics="val_acc",
+            logdir="tests/logs/with-callbacks",
+            overwrite=True,
+        ),
+    )
+    setup_tb(tuner)
+    train_data, test_data = make_dataset()
+    callbacks = [tf.keras.callbacks.TensorBoard(log_dir="tests/logs/with-callbacks")]
+    tuner.search(train_data, epochs=3, validation_data=test_data, callbacks=callbacks)
 
 
 def test_parse():
