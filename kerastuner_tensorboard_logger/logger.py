@@ -7,7 +7,7 @@ from tensorboard.plugins.hparams import api as hp_board
 
 
 def timedelta_to_hms(timedelta: timedelta) -> str:
-    """convert datetime.timedelta to string like '01h:15m:30s'"""
+    """(Deprecated) convert datetime.timedelta to string like '01h:15m:30s'"""
     tot_seconds = int(timedelta.total_seconds())
     hours = tot_seconds // 3600
     minutes = (tot_seconds % 3600) // 60
@@ -30,7 +30,7 @@ class TensorBoardLogger(Logger):
     def __init__(
         self,
         metrics: Union[str, List[str]] = ["acc"],
-        logdir: str = "logs/hparam_tuning",
+        logdir: str = "logs/",
         overwrite: bool = False,
     ):
         self.metrics = [metrics] if isinstance(metrics, str) else metrics
@@ -46,18 +46,16 @@ class TensorBoardLogger(Logger):
 
     def register_trial(self, trial_id: str, trial_state: Dict[str, Any]):
         """Informs the logger that a new Trial is starting."""
-        self.times[trial_id] = datetime.now()
+        pass
 
     def report_trial_state(self, trial_id: str, trial_state: Dict[str, Any]):
         """Gives the logger information about trial status."""
-        execution_time = timedelta_to_hms(datetime.now() - self.times.pop(trial_id))
-        name = f"{execution_time}-{trial_id}"
-        logdir = os.path.join(self.logdir, name)
+        logdir = os.path.join(self.logdir, trial_id, "hparams")
 
         with tf.summary.create_file_writer(logdir).as_default():
             hparams = self.parse_hparams(trial_state)
             hp_board.hparams(
-                hparams, trial_id=name
+                hparams, trial_id=trial_id
             )  # record the values used in this trial
 
             for target_metric, metric in self.parse_metrics(trial_state):
