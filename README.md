@@ -3,6 +3,8 @@
 ![](https://github.com/tokusumi/kerastuner-tensorboard-logger/workflows/Tests/badge.svg)
 [![PyPI version](https://badge.fury.io/py/kerastuner-tensorboard-logger.svg)](https://badge.fury.io/py/kerastuner-tensorboard-logger)
 
+*Similar feature (hparams integration) is released in keras-tuner (above v1.0.3), so this repo is archived, not developed anymore.*
+
 [keras-tuner](https://www.tensorflow.org/tutorials/keras/keras_tuner) logger for streaming search report to [Tensorboard plugins Hparams](https://www.tensorflow.org/tensorboard/hyperparameter_tuning_with_hparams), beautiful interactive visualization tool.
 
 ## Requirements
